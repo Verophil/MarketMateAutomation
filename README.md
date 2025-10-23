@@ -2,12 +2,12 @@
 
 ## Overview
 This smoke test suite verifies the most essential user flows of the **MarketMate** application.  
-It ensures that critical functionalities such as login, age verification, and rating restrictions work as expected.  
+It ensures that critical functionalities such as login, age verification, shipping rules, and rating restrictions work as expected.  
 The suite is implemented using **Pytest**, **Selenium WebDriver**, and the **Page Object Model (POM)** design pattern.
 
 ---
 
-##  1. Login Test
+## 1. Login Test
 
 ### Objective
 Verify that valid users can log in successfully and the logout option becomes visible.
@@ -24,7 +24,7 @@ Verify that valid users can log in successfully and the logout option becomes vi
 
 ---
 
-## 🧾 2. Age Verification Test
+## 2. Age Verification Test
 
 ### Objective
 Validate that users must confirm their age before accessing alcohol-related products in the shop.
@@ -44,7 +44,7 @@ Tested multiple DOB inputs using **parametrized Pytest** cases.
 
 ---
 
-##  3. Rating Restriction Test
+## 3. Rating Restriction Test
 
 ### Objective
 Ensure that only users who have purchased a product can rate it.
@@ -59,7 +59,32 @@ Ensure that only users who have purchased a product can rate it.
 
 ---
 
-##  Technical Summary
+## 4. Shipping Cost Rule (Cart)
+
+### Objective  
+Verify the cart’s shipping rule logic:  
+- **Free shipping** when *product total ≥ €20*  
+- **€5 shipping fee** when *product total < €20*  
+- **Grand total = product total + shipping*
+
+### Methodology  
+From the **Shop** page, add items to the cart until just below and just above the threshold; read the **Product Total**, **Shipment**, and **Total** values from the checkout summary.
+
+### Result
+| Scenario | Product Total | Expected Shipment | Expected Total | Actual | Result |
+|---|---:|---:|---:|---|---|
+| Below €20 (e.g., €19.xx) | < €20 | €5.00 | Product + €5.00 | Matches | ✅ **Pass** |
+| At/Above €20 (e.g., €20.00+) | ≥ €20 | €0.00 | Product | Matches | ✅ **Pass** |
+
+### Notes
+- Test navigates via **Shop** (no Add-to-Cart on product detail pages).  
+- Handles the **Age Verification Modal** if it appears.  
+- Locators are resilient (class-based/XPath with fallbacks).  
+- Implemented in: `tests/test_cart.py` using `CartPage` methods.
+
+---
+
+## ⚙️ Technical Summary
 
 | Component | Description |
 |------------|-------------|
@@ -72,10 +97,11 @@ Ensure that only users who have purchased a product can rate it.
 
 ---
 
-##  Conclusion
-- **Core features validated successfully.**  
-- **2 tests passed**, **3 xfailed** (due to known UI issues in Age Verification).  
-- The automation is **stable, maintainable**, and ready for CI integration.
+## Conclusion
 
->  Smoke suite passed critical paths.  
->  Minor UI inconsistencies logged as known issues.
+- **Core flows validated:** Login, Age Verification, Shipping Rule, and Rating Restriction.  
+- **Age Verification:** Adult and underage paths pass; 3 negative validations marked as **xfail** due to known UI issues.  
+- **Result Summary:** 3 tests pass outright, 1 (Age Verification) partially passes with known UI bugs.  
+
+> The automation suite is **stable, maintainable, and ready for CI/CD integration.**  
+> Minor UI inconsistencies have been logged as known issues.
